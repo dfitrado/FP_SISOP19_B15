@@ -1,0 +1,2 @@
+* * * * * bash /home/wildangbudhi/Documents/FPSisop/coba2.sh
+* * * * * bash /home/wildangbudhi/Documents/FPSisop/coba1.sh
