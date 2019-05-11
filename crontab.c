@@ -39,7 +39,7 @@ int main() {
     close(STDERR_FILENO);
     time_t oldCOnfigMTime = (time_t) 0;
     while(1) {
-        if((isConfigChanged("/home/wildangbudhi/Documents/FPSisop/config.txt", &oldCOnfigMTime))){
+        if((isConfigChanged("/home/dfitrado/Documents/FPSisop/config.txt", &oldCOnfigMTime))){
             pthread_cancel(thread);
             Jobs();
         }
@@ -58,7 +58,7 @@ int isConfigChanged(const char *path, time_t *oldMTime){
 }
 
 void Jobs(){
-    FILE *config = fopen("/home/wildangbudhi/Documents/FPSisop/config.txt", "r");
+    FILE *config = fopen("/home/dfitrado/Documents/FPSisop/config.txt", "r");
     char in[1000];
 
     while(fgets(in, 1000, config)){
