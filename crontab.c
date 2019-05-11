@@ -11,7 +11,7 @@
 
 struct arg {
     char minute, hour, day, month, week;
-    char job[1000], program[1000];
+    char job[2000];
 };
 
 void* runProgram();
@@ -39,7 +39,7 @@ int main() {
     close(STDERR_FILENO);
     time_t oldCOnfigMTime = (time_t) 0;
     while(1) {
-        if((isConfigChanged("/home/wildangbudhi/Documents/FPSisop/config.txt", &oldCOnfigMTime))){
+        if((isConfigChanged("/home/wildangbudhi/Documents/FP_SISOP19_B15/config.txt", &oldCOnfigMTime))){
             pthread_cancel(thread);
             Jobs();
         }
@@ -58,12 +58,12 @@ int isConfigChanged(const char *path, time_t *oldMTime){
 }
 
 void Jobs(){
-    FILE *config = fopen("/home/wildangbudhi/Documents/FPSisop/config.txt", "r");
+    FILE *config = fopen("/home/wildangbudhi/Documents/FP_SISOP19_B15/config.txt", "r");
     char in[1000];
 
     while(fgets(in, 1000, config)){
         struct arg *a = (struct arg*) malloc(sizeof(struct arg));
-        sscanf(in, "%c %c %c %c %c %s %s", &a->minute, &a->hour, &a->day, &a->month, &a->week, a->job, a->program);
+        sscanf(in, "%c %c %c %c %c %[^\n]", &a->minute, &a->hour, &a->day, &a->month, &a->week, a->job);
         pthread_create( &thread, NULL, runProgram, (void*) a); 
     }
 
@@ -80,11 +80,9 @@ void* runProgram( void *ptr ){
                 if((((struct arg*)ptr)->day - '0') == temp.tm_mday || ((struct arg*)ptr)->day == '*')
                     if((((struct arg*)ptr)->month - '0') == (temp.tm_mon + 1) || ((struct arg*)ptr)->month == '*')
                         if((((struct arg*)ptr)->week - '0') == temp.tm_wday || ((struct arg*)ptr)->week == '*'){
-                            char command[1000];
-                            sprintf(command, "%s %s", ((struct arg*)ptr)->job, ((struct arg*)ptr)->program);
-                            system(command);
+                            system(((struct arg*)ptr)->job);
                         }
-        sleep(1);
+        sleep(60);
     }
 
 }
