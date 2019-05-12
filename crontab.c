@@ -7,11 +7,12 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
+#include <time.h>
 #include <pthread.h>
-
+#include <sys/wait.h>
 struct arg {
     char minute, hour, day, month, week;
-    char job[2000];
+    char job[2000], program[2000];
 };
 
 void* runProgram();
@@ -63,7 +64,7 @@ void Jobs(){
 
     while(fgets(in, 1000, config)){
         struct arg *a = (struct arg*) malloc(sizeof(struct arg));
-        sscanf(in, "%c %c %c %c %c %[^\n]", &a->minute, &a->hour, &a->day, &a->month, &a->week, a->job);
+        sscanf(in, "%c %c %c %c %c %s %s", &a->minute, &a->hour, &a->day, &a->month, &a->week, a->job, a->program);
         pthread_create( &thread, NULL, runProgram, (void*) a); 
     }
 
@@ -80,9 +81,17 @@ void* runProgram( void *ptr ){
                 if((((struct arg*)ptr)->day - '0') == temp.tm_mday || ((struct arg*)ptr)->day == '*')
                     if((((struct arg*)ptr)->month - '0') == (temp.tm_mon + 1) || ((struct arg*)ptr)->month == '*')
                         if((((struct arg*)ptr)->week - '0') == temp.tm_wday || ((struct arg*)ptr)->week == '*'){
-                            system(((struct arg*)ptr)->job);
+                            int child = fork();
+                            int status;
+                            if(child == 0){
+                                char *arg[] = {((struct arg*)ptr)->job, ((struct arg*)ptr)->program, NULL};
+                                execv(((struct arg*)ptr)->job, arg);
+                            }
+                            else{
+                                while(wait(&status) > 0);
+                            }
                         }
-        sleep(60);
+        sleep(1);
     }
 
 }
