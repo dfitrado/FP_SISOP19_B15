@@ -41,8 +41,6 @@ int main() {
     close(STDERR_FILENO);
     time_t oldCOnfigMTime = (time_t) 0;
 
-    Jobs();
-
     while(1) {
         if((isConfigChanged("/home/wildangbudhi/Documents/FP_SISOP19_B15/config.txt", &oldCOnfigMTime))){
             killAllThread();
