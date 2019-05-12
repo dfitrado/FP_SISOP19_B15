@@ -18,9 +18,10 @@ struct arg {
 void* runProgram();
 void Jobs();
 int isConfigChanged(const char *path, time_t *oldMTime);
+void killAllThread();
 
-static int confChange = 0;
-pthread_t thread;
+int totalThread = 0;
+pthread_t *thread;
 
 int main() {
     pid_t pid, sid;
@@ -39,15 +40,24 @@ int main() {
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
     time_t oldCOnfigMTime = (time_t) 0;
+
+    Jobs();
+
     while(1) {
         if((isConfigChanged("/home/wildangbudhi/Documents/FP_SISOP19_B15/config.txt", &oldCOnfigMTime))){
-            pthread_cancel(thread);
+            killAllThread();
             Jobs();
         }
         sleep(1);
     }
 
     exit(EXIT_SUCCESS);
+}
+
+void killAllThread(){
+    int i;
+    for(i=0; i<totalThread; i++)
+        pthread_cancel(thread[i]);
 }
 
 int isConfigChanged(const char *path, time_t *oldMTime){
@@ -61,12 +71,17 @@ int isConfigChanged(const char *path, time_t *oldMTime){
 void Jobs(){
     FILE *config = fopen("/home/wildangbudhi/Documents/FP_SISOP19_B15/config.txt", "r");
     char in[1000];
+    int i = 0;
 
     while(fgets(in, 1000, config)){
+        thread = realloc(thread, sizeof(pthread_t) * (i+1));
         struct arg *a = (struct arg*) malloc(sizeof(struct arg));
         sscanf(in, "%c %c %c %c %c %s %s", &a->minute, &a->hour, &a->day, &a->month, &a->week, a->job, a->program);
-        pthread_create( &thread, NULL, runProgram, (void*) a); 
+        pthread_create( &thread[i], NULL, runProgram, (void*) a);
+        i++;
     }
+
+    totalThread = i;
 
     fclose(config);
 }
