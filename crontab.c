@@ -88,8 +88,10 @@ void Jobs(){
 
 void* runProgram( void *ptr ){
 
+    time_t t, check;
+
     while(1){
-        time_t t = time(NULL);
+        t = time(NULL);
         struct tm temp = *localtime(&t);
         if((((struct arg*)ptr)->minute - '0') == temp.tm_min || ((struct arg*)ptr)->minute == '*')
             if((((struct arg*)ptr)->hour - '0') == temp.tm_hour || ((struct arg*)ptr)->hour == '*')
@@ -106,7 +108,12 @@ void* runProgram( void *ptr ){
                                 while(wait(&status) > 0);
                             }
                         }
-        sleep(1);
+        // sleep(1);
+        time(&check);
+        while (difftime(check, t) <= 60.0){
+            sleep(1);
+            time(&check);
+        }
     }
 
 }
